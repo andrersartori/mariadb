@@ -1,0 +1,62 @@
+# Install Ubuntu
+sudo apt-get install apt-transport-https curl 
+sudo mkdir -p /etc/apt/keyrings
+sudo curl -o /etc/apt/keyrings/mariadb-keyring.pgp 'https://mariadb.org/mariadb_release_signing_key.pgp'
+
+vi /etc/apt/sources.list.d/mariadb.sources
+
+# MariaDB 10.6 repository list - created 2024-05-28 21:18 UTC
+# https://mariadb.org/download/
+X-Repolib-Name: MariaDB
+Types: deb
+# deb.mariadb.org is a dynamic mirror if your preferred mirror goes offline. See https://mariadb.org/mirrorbits/ for details.
+# URIs: https://deb.mariadb.org/10.6/ubuntu
+URIs: https://mirrors.xtom.com/mariadb/repo/10.6/ubuntu
+Suites: jammy
+Components: main main/debug
+Signed-By: /etc/apt/keyrings/mariadb-keyring.pgp
+
+sudo apt-get update && sudo apt-get install mariadb-server
+
+## Teste
+sudo apt-key list
+sudo apt-key del
+
+
+# ALternative
+
+sudo apt install software-properties-common
+sudo apt-key adv --fetch-keys 'https://mariadb.org/mariadb_release_signing_key.asc' # Deprecated
+sudo add-apt-repository 'deb [arch=amd64] http://mariadb.mirror.globo.tech/repo/11.2.3/ubuntu jammy main'
+
+curl -fsSL http://mirror.mariadb.org/PublicKey_v2 | sudo gpg --dearmor | sudo tee /usr/share/keyrings/mariadb.gpg > /dev/null
+curl -fsSL https://mariadb.org/mariadb_release_signing_key.asc | sudo gpg --dearmor -o /usr/share/keyrings/mariadb-archive-keyring.gpg
+
+vi /etc/apt/sources.list and add
+deb [signed-by=/usr/share/keyrings/mariadb-archive-keyring.gpg] https://dlm.mariadb.com/repo/mariadb-server/11.3/repo/ubuntu mantic main
+
+# MariaDB 10.6 (LTS) - End-of-life date: July 2026.
+echo "deb [arch=amd64,arm64,ppc64el signed-by=/usr/share/keyrings/mariadb.gpg] http://mirror.mariadb.org/repo/10.6/ubuntu/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/mariadb.list
+
+
+# Install
+sudo apt install mariadb-server mariadb-client -y
+mariadb --version
+systemctl status mariadb
+sudo mysql_secure_installation
+sudo mariadb-upgrade
+
+
+
+# Remove
+sudo apt autoremove mariadb-server mariadb-client --purge -y
+
+
+
+
+
+# MariaDB Recover Password
+mysql
+FLUSH PRIVILEGES;
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'NewStr0ngPassword';
+exit
